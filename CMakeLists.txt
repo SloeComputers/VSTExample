@@ -22,9 +22,9 @@ add_subdirectory(${vst3sdk_SOURCE_DIR} ${PROJECT_BINARY_DIR}/vst3sdk)
 smtg_enable_vst3_sdk()
 
 smtg_add_vst3plugin(MinimalSawSynth
-                    source/controller.cpp
-                    source/entry.cpp
-                    source/processor.cpp)
+                    Source/Controller.cpp
+                    Source/Processor.cpp
+                    Source/entry.cpp)
 
 target_compile_features(MinimalSawSynth PUBLIC cxx_std_17)
 target_link_libraries(MinimalSawSynth PRIVATE sdk)
@@ -35,4 +35,18 @@ if(SMTG_MAC)
     smtg_target_set_bundle(MinimalSawSynth
         BUNDLE_IDENTIFIER com.local.minimalsawsynth
         COMPANY_NAME "Local")
+
+    set_target_properties(MinimalSawSynth PROPERTIES
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/cmake/MacVST3Info.plist.in"
+        MACOSX_BUNDLE_BUNDLE_NAME "MinimalSawSynth"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.local.minimalsawsynth"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_LONG_VERSION_STRING "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_INFO_STRING "${PROJECT_DESCRIPTION}"
+        MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2026 Local.")
+
+    add_custom_command(TARGET MinimalSawSynth POST_BUILD
+        COMMAND /usr/bin/codesign --force --sign - --deep "$<TARGET_BUNDLE_DIR:MinimalSawSynth>"
+        COMMENT "Ad-hoc signing MinimalSawSynth VST3 bundle")
 endif()

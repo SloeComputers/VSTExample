@@ -61,12 +61,12 @@ private:
       return Steinberg::kResultOk;
    }
 
-   template <typename Sample>
+   template <typename SAMPLE>
    void render(Steinberg::Vst::ProcessData& data)
    {
       unsigned event_idx = 0;
       unsigned event_num = data.inputEvents ? data.inputEvents->getEventCount() : 0;
-      Sample** out = reinterpret_cast<Sample**>(data.outputs[0].channelBuffers32);
+      SAMPLE** out = reinterpret_cast<SAMPLE**>(data.outputs[0].channelBuffers32);
 
       for(unsigned sample = 0; sample < unsigned(data.numSamples); ++sample)
       {
@@ -113,7 +113,7 @@ private:
 
          for(unsigned channel = 0; channel < data.outputs[0].numChannels; ++channel)
          {
-            out[channel][sample] = Sample(value);
+            out[channel][sample] = SAMPLE(value);
          }
       }
    }
