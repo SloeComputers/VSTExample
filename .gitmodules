@@ -1,0 +1,3 @@
+[submodule "PDK"]
+	path = PDK
+	url = https://github.com/SloeComputers/PDK.git
