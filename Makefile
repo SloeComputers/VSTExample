@@ -1,8 +1,6 @@
 
-all:
-	mkdir -p build
-	cd build; cmake ..
-	cd build; make
+targets = native
 
-clean:
-	rm -rf build
+all: $(targets)
+
+include PDK/build.make

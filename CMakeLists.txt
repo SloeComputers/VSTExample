@@ -5,15 +5,12 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13 CACHE STRING "")
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
-endif()
-
 project(VSTExample
-        LANGUAGES   CXX C ASM
-        VERSION     1.0.0.0
-        DESCRIPTION "Example VST3 instrument")
+        LANGUAGES CXX C ASM
+        VERSION 0.0
+        DESCRIPTION "Example VST3 plugin")
+
+add_subdirectory(PDK)
 
 set(vst3sdk_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/VST_SDK/vst3sdk" CACHE PATH "VST3 SDK path")
 
