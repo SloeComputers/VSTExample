@@ -9,45 +9,44 @@
 #undef RELEASE
 
 #include "SIG/SIG.h"
+#include "MIDI/Instrument.h"
 
-class Synth
+template <unsigned NUM_VOICE>
+class Synth : public MIDI::Instrument
 {
 public:
-   Synth() = default;
-
-   void noteOn(int16_t midi_note_, float velocity_)
+   Synth()
+      : MIDI::Instrument(NUM_VOICE)
    {
-      if (velocity_ <= 0.0)
-         return;
-
-      osc.setNote(midi_note_);
-      osc.gain = velocity_ * 0.2f;
-      osc.sync();
-
-      note   = midi_note_;
-      active = true;
    }
-
-   void noteOff(int16_t midi_note_)
-   {
-      if (midi_note_ == note)
-         active = false;
-   }
-
-   void noteOffAll()
-   {
-      active = false;
-   }
-
-   bool isSilent() const { return not active; }
 
    SIG::Signal getSample()
    {
-      return active ? osc() : SIG::Float(0.0);
+      SIG::Signal signal{};
+
+      for(unsigned i = 0; i < NUM_VOICE; ++i)
+         signal += osc[i]();
+
+      return signal;
    }
 
 private:
-   bool           active{false};
-   int16_t        note{};
-   SIG::osc::Ramp osc{};
+   void voiceOn(unsigned voice_, uint8_t note_, uint8_t velocity_) override
+   {
+      osc[voice_].setNote(note_);
+      osc[voice_].gain = SIG::Signal(velocity_) / (127 * NUM_VOICE);
+      osc[voice_].sync();
+   }
+
+   void voiceOff(unsigned voice_, uint8_t velocity_) override
+   {
+      osc[voice_].gain = 0.0;
+   }
+
+   void voiceMute(unsigned voice_) override
+   {
+      osc[voice_].gain = 0.0;
+   }
+
+   SIG::osc::Ramp osc[NUM_VOICE] = {};
 };

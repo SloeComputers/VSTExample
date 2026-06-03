@@ -53,5 +53,5 @@ private:
    template <typename SAMPLE>
    void render(Steinberg::Vst::ProcessData& data, int32_t start, int32_t end, bool& silent);
 
-   Synth synth{};
+   Synth<8> synth{};
 };

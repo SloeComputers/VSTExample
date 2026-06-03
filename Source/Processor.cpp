@@ -40,7 +40,7 @@ tresult PLUGIN_API Processor::setActive(TBool state_)
 {
   if (state_)
   {
-     synth.noteOffAll();
+     synth.allSoundsOff(/* channel */ 0);
   }
 
   return Vst::AudioEffect::setActive(state_);
@@ -69,11 +69,15 @@ tresult PLUGIN_API Processor::process(Vst::ProcessData& data)
          switch(event.type)
          {
          case Vst::Event::kNoteOnEvent:
-            synth.noteOn(event.noteOn.pitch, event.noteOn.velocity);
+            synth.noteOn(uint8_t(event.noteOn.channel),
+                         uint8_t(event.noteOn.pitch),
+                         uint8_t(event.noteOn.velocity * 127));
             break;
 
          case Vst::Event::kNoteOffEvent:
-            synth.noteOff(event.noteOff.pitch);
+            synth.noteOff(uint8_t(event.noteOn.channel),
+                          uint8_t(event.noteOn.pitch),
+                          uint8_t(event.noteOn.velocity * 127));
             break;
 
          default:
@@ -114,17 +118,7 @@ void Processor::render(Vst::ProcessData& data, int32_t start, int32_t end, bool&
 
    SAMPLE** buffer = reinterpret_cast<SAMPLE**>(data.outputs[0].channelBuffers32);
 
-   if (synth.isSilent())
-   {
-      for(int32_t i = start; i < end; ++i)
-      {
-         for(int32_t channel = 0; channel < data.outputs[0].numChannels; ++channel)
-         {
-            buffer[channel][i] = SAMPLE(0.0);
-         }
-      }
-   }
-   else
+   if (synth.isAnyVoiceOn())
    {
       for(int32_t i = start; i < end; ++i)
       {
@@ -137,5 +131,15 @@ void Processor::render(Vst::ProcessData& data, int32_t start, int32_t end, bool&
       }
 
       silent = false;
+   }
+   else
+   {
+      for(int32_t i = start; i < end; ++i)
+      {
+         for(int32_t channel = 0; channel < data.outputs[0].numChannels; ++channel)
+         {
+            buffer[channel][i] = SAMPLE(0.0);
+         }
+      }
    }
 }
