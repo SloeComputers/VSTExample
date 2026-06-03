@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(VSTExample
-        LANGUAGES CXX C ASM
+        LANGUAGES CXX
         VERSION 0.0
         DESCRIPTION "Example VST3 plugin")
 

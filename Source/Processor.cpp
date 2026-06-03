@@ -98,17 +98,12 @@ void Processor::render(Vst::ProcessData& data)
          ++event_idx;
       }
 
-      float value = 0.0f;
+      SIG::Float value{};
+
       if (active)
       {
-         value = float((phase * 2) - 1) * gain;
-         phase += frequency / processSetup.sampleRate;
-         if (phase >= 1.)
-            phase -= std::floor(phase);
+         value = osc();
       }
-
-      const int16_t quantized = int16_t(value * 32767.f);
-      value = float(quantized) / 32768.f;
 
       for(unsigned channel = 0; channel < data.outputs[0].numChannels; ++channel)
       {
@@ -117,11 +112,12 @@ void Processor::render(Vst::ProcessData& data)
    }
 }
 
-void Processor::noteOn(int16_t pitch_, float velocity_)
+void Processor::noteOn(int16_t midi_note_, float velocity_)
 {
-   pitch     = pitch_;
-   frequency = 440. * pow(2.0, (pitch - 69) / 12.0);
-   gain      = velocity_ * 0.2f;
-   phase     = 0.0;
-   active    = true;
+   pitch  = midi_note_;
+   active = true;
+
+   osc.sync();
+   osc.setNote(midi_note_);
+   osc.gain = velocity_ * 0.2f;
 }

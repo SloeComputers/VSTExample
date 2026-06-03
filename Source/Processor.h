@@ -8,6 +8,11 @@
 #include "public.sdk/source/main/pluginfactory.h"
 #include "public.sdk/source/vst/vstaudioeffect.h"
 
+// Undo some crazy namespace corruption by the VST3 build environment
+#undef RELEASE
+
+#include "SIG/SIG.h"
+
 class Processor : public Steinberg::Vst::AudioEffect
 {
 public:
@@ -51,9 +56,7 @@ private:
 
    void noteOn(int16_t pitch, float velocity);
 
-   bool    active{false};
-   int16_t pitch{};
-   double  frequency{};
-   double  phase{};
-   float   gain{};
+   bool           active{false};
+   int16_t        pitch{};
+   SIG::osc::Ramp osc{};
 };
