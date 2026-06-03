@@ -5,13 +5,13 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "public.sdk/source/main/pluginfactory.h"
 #include "public.sdk/source/vst/vstaudioeffect.h"
 
-// Undo some crazy namespace corruption by the VST3 build environment
-#undef RELEASE
-
-#include "SIG/SIG.h"
+#include "Config.h"
+#include "Synth.h"
 
 class Processor : public Steinberg::Vst::AudioEffect
 {
@@ -20,8 +20,7 @@ public:
 
    static const Steinberg::FUID& uid()
    {
-      const static Steinberg::FUID UID{0x644191FF, 0xCE364B5B, 0x87AADC4B, 0xFDD5EB7F};
-
+      const static Steinberg::FUID UID{PROCESSOR_UID};
       return UID;
    }
 
@@ -30,11 +29,11 @@ public:
       static Steinberg::PClassInfo2 class_info(uid().toTUID(),
                                                Steinberg::PClassInfo::kManyInstances,
                                                kVstAudioEffectClass,
-                                               "vstexample",
+                                               PDK_PROJ_NAME,
                                                Steinberg::Vst::kDistributable,
                                                Steinberg::Vst::PlugType::kInstrumentSynth,
                                                nullptr,
-                                               "1.0.0.0",
+                                               PDK_PROJ_VERSION,
                                                kVstVersionString);
 
       factory_->registerClass(&class_info, construct);
@@ -52,11 +51,7 @@ private:
    }
 
    template <typename SAMPLE>
-   void render(Steinberg::Vst::ProcessData& data);
+   void render(Steinberg::Vst::ProcessData& data, int32_t start, int32_t end);
 
-   void noteOn(int16_t pitch, float velocity);
-
-   bool           active{false};
-   int16_t        pitch{};
-   SIG::osc::Ramp osc{};
+   Synth synth{};
 };

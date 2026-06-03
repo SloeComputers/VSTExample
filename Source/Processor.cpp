@@ -3,14 +3,13 @@
 // SPDX-License-Identifier: MIT
 //-------------------------------------------------------------------------------
 
-#include "Processor.h"
-#include "Controller.h"
+#include <algorithm>
 
 #include "pluginterfaces/vst/ivstevents.h"
 #include "public.sdk/source/vst/vstaudioeffect.h"
 
-#include <cmath>
-#include <cstdint>
+#include "Processor.h"
+#include "Controller.h"
 
 using namespace Steinberg;
 
@@ -41,7 +40,7 @@ tresult PLUGIN_API Processor::setActive(TBool state_)
 {
   if (state_)
   {
-     active = false;
+     synth.noteOffAll();
   }
 
   return Vst::AudioEffect::setActive(state_);
@@ -52,43 +51,30 @@ tresult PLUGIN_API Processor::process(Vst::ProcessData& data)
    if (data.numOutputs == 0 || data.outputs[0].numChannels == 0)
       return kResultOk;
 
-   if (processSetup.symbolicSampleSize == Vst::kSample64)
-      render<Vst::Sample64>(data);
+   int32_t    num_samples = data.numSamples;
+   int32_t    event_idx   = 0;
+   int32_t    num_events  = data.inputEvents != nullptr ? data.inputEvents->getEventCount() : 0;
+   int32_t    event_sample;
+   Vst::Event event{};
+
+   if ((event_idx < num_events) &&
+       (data.inputEvents->getEvent(event_idx, event) == kResultOk))
+      event_sample = std::min(event.sampleOffset, num_samples);
    else
-      render<Vst::Sample32>(data);
+      event_sample = num_samples;
 
-   return kResultOk;
-}
-
-template <typename SAMPLE>
-void Processor::render(Vst::ProcessData& data)
-{
-   unsigned event_idx = 0;
-   unsigned event_num = data.inputEvents ? data.inputEvents->getEventCount() : 0;
-   SAMPLE** out = reinterpret_cast<SAMPLE**>(data.outputs[0].channelBuffers32);
-
-   for(unsigned sample = 0; sample < unsigned(data.numSamples); ++sample)
+   for(int32_t sample = 0; sample < num_samples;)
    {
-      while(event_idx < event_num)
+      if (sample >= event_sample)
       {
-         Vst::Event event{};
-
-         if ((data.inputEvents->getEvent(event_idx, event) != kResultOk) ||
-             (event.sampleOffset > sample))
-         {
-            break;
-         }
-
          switch(event.type)
          {
          case Vst::Event::kNoteOnEvent:
-            if (event.noteOn.velocity > 0.0)
-               noteOn(event.noteOn.pitch, event.noteOn.velocity);
+            synth.noteOn(event.noteOn.pitch, event.noteOn.velocity);
             break;
 
          case Vst::Event::kNoteOffEvent:
-            if (event.noteOff.pitch == pitch)
-               active = false;
+            synth.noteOff(event.noteOff.pitch);
             break;
 
          default:
@@ -96,28 +82,39 @@ void Processor::render(Vst::ProcessData& data)
          }
 
          ++event_idx;
+
+         if ((event_idx < num_events) &&
+             (data.inputEvents->getEvent(event_idx, event) == kResultOk))
+            event_sample = std::min(event.sampleOffset, num_samples);
+         else
+            event_sample = num_samples;
       }
-
-      SIG::Float value{};
-
-      if (active)
+      else
       {
-         value = osc();
-      }
+         if (processSetup.symbolicSampleSize == Vst::kSample64)
+            render<Vst::Sample64>(data, sample, event_sample);
+         else
+            render<Vst::Sample32>(data, sample, event_sample);
 
-      for(unsigned channel = 0; channel < data.outputs[0].numChannels; ++channel)
-      {
-         out[channel][sample] = SAMPLE(value);
+         sample = event_sample;
       }
    }
+
+   return kResultOk;
 }
 
-void Processor::noteOn(int16_t midi_note_, float velocity_)
+template <typename SAMPLE>
+void Processor::render(Vst::ProcessData& data, int32_t start, int32_t end)
 {
-   pitch  = midi_note_;
-   active = true;
+   SAMPLE** buffer = reinterpret_cast<SAMPLE**>(data.outputs[0].channelBuffers32);
 
-   osc.sync();
-   osc.setNote(midi_note_);
-   osc.gain = velocity_ * 0.2f;
+   for(int32_t i = start; i < end; ++i)
+   {
+      SIG::Float value = synth.getSample();
+
+      for(int32_t channel = 0; channel < data.outputs[0].numChannels; ++channel)
+      {
+         buffer[channel][i] = SAMPLE(value);
+      }
+   }
 }

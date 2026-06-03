@@ -5,6 +5,7 @@
 
 #include "public.sdk/source/main/pluginfactory.h"
 
+#include "Config.h"
 #include "Processor.h"
 #include "Controller.h"
 
@@ -14,9 +15,9 @@ SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory()
 {
    if (gPluginFactory == nullptr)
    {
-      static PFactoryInfo factory_info("Sloe Computers",
-                                       "https://github.com/SloeComputers",
-                                       "sloecomputer@gmail.com",
+      static PFactoryInfo factory_info(PROJECT_OWNER,
+                                       PROJECT_URL,
+                                       PROJECT_EMAIL,
                                        PFactoryInfo::kNoFlags);
 
       gPluginFactory = new CPluginFactory(factory_info);
