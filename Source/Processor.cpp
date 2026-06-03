@@ -48,9 +48,6 @@ tresult PLUGIN_API Processor::setActive(TBool state_)
 
 tresult PLUGIN_API Processor::process(Vst::ProcessData& data)
 {
-   if (data.numOutputs == 0 || data.outputs[0].numChannels == 0)
-      return kResultOk;
-
    int32_t    num_samples = data.numSamples;
    int32_t    event_idx   = 0;
    int32_t    num_events  = data.inputEvents != nullptr ? data.inputEvents->getEventCount() : 0;
@@ -62,6 +59,8 @@ tresult PLUGIN_API Processor::process(Vst::ProcessData& data)
       event_sample = std::min(event.sampleOffset, num_samples);
    else
       event_sample = num_samples;
+
+   bool silent{true};
 
    for(int32_t sample = 0; sample < num_samples;)
    {
@@ -91,30 +90,52 @@ tresult PLUGIN_API Processor::process(Vst::ProcessData& data)
       }
       else
       {
-         if (processSetup.symbolicSampleSize == Vst::kSample64)
-            render<Vst::Sample64>(data, sample, event_sample);
+         if (data.symbolicSampleSize == Vst::kSample64)
+            render<Vst::Sample64>(data, sample, event_sample, silent);
          else
-            render<Vst::Sample32>(data, sample, event_sample);
+            render<Vst::Sample32>(data, sample, event_sample, silent);
 
          sample = event_sample;
       }
    }
 
+   if (data.numOutputs != 0)
+      data.outputs[0].silenceFlags = silent ? ((uint64_t(1) << data.outputs[0].numChannels) - 1)
+                                            : 0;
+
    return kResultOk;
 }
 
 template <typename SAMPLE>
-void Processor::render(Vst::ProcessData& data, int32_t start, int32_t end)
+void Processor::render(Vst::ProcessData& data, int32_t start, int32_t end, bool& silent)
 {
+   if (data.numOutputs == 0 || data.outputs[0].numChannels == 0)
+      return;
+
    SAMPLE** buffer = reinterpret_cast<SAMPLE**>(data.outputs[0].channelBuffers32);
 
-   for(int32_t i = start; i < end; ++i)
+   if (synth.isSilent())
    {
-      SIG::Float value = synth.getSample();
-
-      for(int32_t channel = 0; channel < data.outputs[0].numChannels; ++channel)
+      for(int32_t i = start; i < end; ++i)
       {
-         buffer[channel][i] = SAMPLE(value);
+         for(int32_t channel = 0; channel < data.outputs[0].numChannels; ++channel)
+         {
+            buffer[channel][i] = SAMPLE(0.0);
+         }
       }
+   }
+   else
+   {
+      for(int32_t i = start; i < end; ++i)
+      {
+         SIG::Float value = synth.getSample();
+
+         for(int32_t channel = 0; channel < data.outputs[0].numChannels; ++channel)
+         {
+            buffer[channel][i] = SAMPLE(value);
+         }
+      }
+
+      silent = false;
    }
 }

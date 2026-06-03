@@ -39,6 +39,8 @@ public:
       active = false;
    }
 
+   bool isSilent() const { return not active; }
+
    SIG::Signal getSample()
    {
       return active ? osc() : SIG::Float(0.0);

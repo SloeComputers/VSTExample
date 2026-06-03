@@ -5,7 +5,7 @@
 
 #pragma once
 
-#define PROJECT_OWNER   "Sloe Compters"
+#define PROJECT_OWNER   "Sloe Computers"
 #define PROJECT_URL     "https://github.com/SloeComputers"
 #define PROJECT_EMAIL   "sloecomputer@gmail.com"
 
