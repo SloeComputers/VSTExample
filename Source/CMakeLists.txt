@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MIT
 #-------------------------------------------------------------------------------
 
+smtg_enable_vst3_sdk()
+
 smtg_add_vst3plugin(vstexample
                     Processor.cpp
                     plugin.cpp)
@@ -15,7 +17,7 @@ if(SMTG_MAC)
         COMPANY_NAME "Sloe Computers")
 
    set_target_properties(vstexample PROPERTIES
-      MACOSX_BUNDLE_INFO_PLIST           "${CMAKE_CURRENT_LIST_DIR}/../cmake/MacVST3Info.plist.in"
+      MACOSX_BUNDLE_INFO_PLIST           "${CMAKE_CURRENT_LIST_DIR}/../PDK/TGT/vst3/MacVST3Info.plist.in"
       MACOSX_BUNDLE_BUNDLE_NAME          "${CMAKE_PROJECT_NAME}"
       MACOSX_BUNDLE_GUI_IDENTIFIER       "com.local.vstexample"
       MACOSX_BUNDLE_BUNDLE_VERSION       "${PROJECT_VERSION}"

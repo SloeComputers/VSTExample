@@ -1,5 +1,5 @@
 
-targets = native
+targets = vst3
 
 all: $(targets)
 
