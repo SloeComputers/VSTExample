@@ -11,10 +11,14 @@
 
 using namespace Steinberg;
 
+extern void entry();
+
 SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory()
 {
    if (gPluginFactory == nullptr)
    {
+      entry();
+
       static PFactoryInfo factory_info(PROJECT_OWNER,
                                        PROJECT_URL,
                                        PROJECT_EMAIL,

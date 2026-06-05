@@ -11,7 +11,6 @@
 #include "public.sdk/source/vst/vstaudioeffect.h"
 
 #include "Config.h"
-#include "Synth.h"
 
 class Processor : public Steinberg::Vst::AudioEffect
 {
@@ -52,6 +51,4 @@ private:
 
    template <typename SAMPLE>
    void render(Steinberg::Vst::ProcessData& data, int32_t start, int32_t end, bool& silent);
-
-   Synth<8> synth{};
 };

@@ -10,9 +10,12 @@
 
 #include "SIG/SIG.h"
 #include "MIDI/Instrument.h"
+#include "Audio.h"
 
 template <unsigned NUM_VOICE>
-class Synth : public MIDI::Instrument
+class Synth
+   : public MIDI::Instrument
+   , public Audio::Instrument
 {
 public:
    Synth()
@@ -20,7 +23,8 @@ public:
    {
    }
 
-   SIG::Signal getSample()
+private:
+   SIG::Signal getSample() override
    {
       SIG::Signal signal{};
 
@@ -30,7 +34,6 @@ public:
       return signal;
    }
 
-private:
    void voiceOn(unsigned voice_, uint8_t note_, uint8_t velocity_) override
    {
       osc[voice_].setNote(note_);

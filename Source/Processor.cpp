@@ -8,8 +8,16 @@
 #include "pluginterfaces/vst/ivstevents.h"
 #include "public.sdk/source/vst/vstaudioeffect.h"
 
+#undef RELEASE
+
 #include "Processor.h"
 #include "Controller.h"
+
+#include "Midi.h"
+#include "Audio.h"
+
+static MIDI::Instrument*  midi_inst{};
+static Audio::Instrument* audio_inst{};
 
 using namespace Steinberg;
 
@@ -40,7 +48,7 @@ tresult PLUGIN_API Processor::setActive(TBool state_)
 {
   if (state_)
   {
-     synth.allSoundsOff(/* channel */ 0);
+     midi_inst->allSoundsOff(/* channel */ 0);
   }
 
   return Vst::AudioEffect::setActive(state_);
@@ -69,13 +77,13 @@ tresult PLUGIN_API Processor::process(Vst::ProcessData& data)
          switch(event.type)
          {
          case Vst::Event::kNoteOnEvent:
-            synth.noteOn(uint8_t(event.noteOn.channel),
+            midi_inst->noteOn(uint8_t(event.noteOn.channel),
                          uint8_t(event.noteOn.pitch),
                          uint8_t(event.noteOn.velocity * 127));
             break;
 
          case Vst::Event::kNoteOffEvent:
-            synth.noteOff(uint8_t(event.noteOn.channel),
+            midi_inst->noteOff(uint8_t(event.noteOn.channel),
                           uint8_t(event.noteOn.pitch),
                           uint8_t(event.noteOn.velocity * 127));
             break;
@@ -118,11 +126,11 @@ void Processor::render(Vst::ProcessData& data, int32_t start, int32_t end, bool&
 
    SAMPLE** buffer = reinterpret_cast<SAMPLE**>(data.outputs[0].channelBuffers32);
 
-   if (synth.isAnyVoiceOn())
+   if (midi_inst->isAnyVoiceOn())
    {
       for(int32_t i = start; i < end; ++i)
       {
-         SIG::Float value = synth.getSample();
+         SIG::Float value = audio_inst->getSample();
 
          for(int32_t channel = 0; channel < data.outputs[0].numChannels; ++channel)
          {
@@ -142,4 +150,14 @@ void Processor::render(Vst::ProcessData& data, int32_t start, int32_t end, bool&
          }
       }
    }
+}
+
+void Midi::attachInstrument(MIDI::Instrument& instrument_)
+{
+   midi_inst = &instrument_;
+}
+
+void Audio::attachInstrument(Audio::Instrument& instrument_)
+{
+   audio_inst = &instrument_;
 }
