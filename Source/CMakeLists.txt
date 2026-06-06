@@ -6,11 +6,9 @@
 smtg_enable_vst3_sdk()
 
 smtg_add_vst3plugin(vstexample
-                    Processor.cpp
-                    plugin.cpp
                     main.cpp)
 
-target_link_libraries(vstexample PRIVATE PLT SIG_FL64 TGT)
+target_link_libraries(vstexample PRIVATE PLT TGT_PLG)
 
 if(SMTG_MAC)
     smtg_target_set_bundle(vstexample

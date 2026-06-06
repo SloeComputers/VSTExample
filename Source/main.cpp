@@ -4,8 +4,8 @@
 //-------------------------------------------------------------------------------
 
 #include "Synth.h"
-#include "Midi.h"
-#include "Audio.h"
+#include "PLT/PLGMidi.h"
+#include "PLT/PLGAudio.h"
 
 static Synth<8> synth{};
 static Audio    audio{};

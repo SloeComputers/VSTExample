@@ -10,7 +10,7 @@
 
 #include "SIG/SIG.h"
 #include "MIDI/Instrument.h"
-#include "Audio.h"
+#include "PLT/PLGAudio.h"
 
 template <unsigned NUM_VOICE>
 class Synth
