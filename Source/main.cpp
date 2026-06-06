@@ -11,7 +11,7 @@ static Synth<8> synth{};
 static Audio    audio{};
 static Midi     midi{};
 
-int entry()
+int plugin_main()
 {
    midi.attachInstrument(synth);
    audio.attachInstrument(synth);
