@@ -1,10 +1,14 @@
 # VSTExample
 
-Example VST3 plugin.
+Example Steinberg VST3 plugin based on the Sloe Compurters PDK.
 
 ## Status
 
+Build failing as VST_SDK has not been made available..
+
 [![Build Status](https://github.com/SloeComputers/VSTExample/actions/workflows/build_on_push.yml/badge.svg)](https://github.com/SloeComputers/VSTExample/actions/workflows/build_on_push.yml)
+
+Being developed on MacOS. Will explore Linux builds once more progress has been made.
 
 ## Checkout
 
@@ -26,7 +30,7 @@ or
 
 ## Build
 
-Being developed on MacOS.
+The environment variable `VST_SDK` needs to be made available and point at an install of the VST3 SDK source.
 
 Indirect build with cmake and make (or ninja)...
 
