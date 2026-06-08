@@ -5,21 +5,13 @@
 
 #pragma once
 
-// XXX undo some crazy namespace corruption by the VST3 build environment
-#undef RELEASE
+#include "PLT/Synth.h"
 
-#include "SIG/SIG.h"
-#include "MIDI/Instrument.h"
-#include "PLT/PLGAudio.h"
-
-template <unsigned NUM_VOICE>
-class Synth
-   : public MIDI::Instrument
-   , public Audio::Instrument
+class Synth : public PLT::Synth
 {
 public:
    Synth()
-      : MIDI::Instrument(NUM_VOICE)
+      : PLT::Synth(NUM_VOICE)
    {
    }
 
@@ -50,6 +42,8 @@ private:
    {
       osc[voice_].gain = 0.0;
    }
+
+   static constexpr unsigned NUM_VOICE = 8;
 
    SIG::osc::Ramp osc[NUM_VOICE] = {};
 };

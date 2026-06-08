@@ -4,17 +4,8 @@
 //-------------------------------------------------------------------------------
 
 #include "Synth.h"
-#include "PLT/PLGMidi.h"
-#include "PLT/PLGAudio.h"
 
-static Synth<8> synth{};
-static Audio    audio{};
-static Midi     midi{};
-
-int plugin_main()
+PLT::Synth* PLT::Synth::construct()
 {
-   midi.attachInstrument(synth);
-   audio.attachInstrument(synth);
-
-   return 0;
+   return new ::Synth();
 }

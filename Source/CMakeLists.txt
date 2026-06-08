@@ -6,7 +6,7 @@
 smtg_enable_vst3_sdk()
 
 smtg_add_vst3plugin(vstexample
-                    main.cpp)
+                    factory.cpp)
 
 target_link_libraries(vstexample PRIVATE PLT TGT_PLG)
 
