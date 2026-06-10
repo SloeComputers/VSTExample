@@ -5,18 +5,18 @@
 
 #pragma once
 
-#include "PLT/Synth.h"
+#include "MIDI/Synth.h"
 
-class Synth : public PLT::Synth
+class Synth : public MIDI::Synth
 {
 public:
    Synth()
-      : PLT::Synth(NUM_VOICE)
+      : MIDI::Synth(NUM_VOICE)
    {
    }
 
 private:
-   SIG::Signal getSample() override
+   SIG::Signal sample() override
    {
       SIG::Signal signal{};
 

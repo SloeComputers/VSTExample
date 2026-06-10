@@ -5,7 +5,7 @@
 
 #include "Synth.h"
 
-PLT::Synth* PLT::Synth::construct()
+MIDI::Synth* MIDI::Synth::construct()
 {
    return new ::Synth();
 }

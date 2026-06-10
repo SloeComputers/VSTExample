@@ -38,12 +38,12 @@ Indirect build with cmake and make (or ninja)...
 make
 ```
 
-Build the native target...
+Build the vst3 target...
 
 ```
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DPDK_TARGET=native
+cmake .. -DCMAKE_BUILD_TYPE=Release -DPDK_TARGET=vst3
 make
 ```
 
