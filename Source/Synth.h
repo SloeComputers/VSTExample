@@ -6,6 +6,7 @@
 #pragma once
 
 #include "MIDI/Synth.h"
+#include "SIG/ReSample.h"
 
 class Synth : public MIDI::Synth
 {
@@ -16,6 +17,11 @@ public:
    }
 
 private:
+   void setSampleRate(unsigned sample_rate_) override
+   {
+      re_sample.setOutRate(sample_rate_);
+   }
+
    SIG::Signal sample() override
    {
       SIG::Signal signal{};
@@ -45,5 +51,6 @@ private:
 
    static constexpr unsigned NUM_VOICE = 8;
 
-   SIG::osc::Ramp osc[NUM_VOICE] = {};
+   SIG::osc::Ramp                  osc[NUM_VOICE] = {};
+   SIG::ReSample<Synth,/* N */ 16> re_sample{*this, SIG::SAMPLE_RATE};
 };
